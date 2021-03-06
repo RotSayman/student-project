@@ -2,16 +2,14 @@ package edu.javacourse.studentorder.validator;
 
 import edu.javacourse.studentorder.domain.Child;
 import edu.javacourse.studentorder.domain.Person;
+import edu.javacourse.studentorder.domain.StudentOrder;
 import edu.javacourse.studentorder.domain.register.AnswerCityRegister;
 import edu.javacourse.studentorder.domain.register.AnswerCityRegisterItem;
 import edu.javacourse.studentorder.domain.register.CityRegisterResponse;
-import edu.javacourse.studentorder.domain.StudentOrder;
 import edu.javacourse.studentorder.exception.CityRegisterException;
 import edu.javacourse.studentorder.exception.TransportException;
 import edu.javacourse.studentorder.validator.register.CityRegisterChecker;
 import edu.javacourse.studentorder.validator.register.FakeCityRegisterChecker;
-
-import java.util.List;
 
 public class CityRegisterValidator
 {

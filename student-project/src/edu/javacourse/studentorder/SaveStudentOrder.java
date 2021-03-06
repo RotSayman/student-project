@@ -4,10 +4,6 @@ import edu.javacourse.studentorder.dao.DictionaryDaoImpl;
 import edu.javacourse.studentorder.domain.*;
 import edu.javacourse.studentorder.exception.DaoException;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -15,8 +11,8 @@ public class SaveStudentOrder
 {
     public static void main(String[] args){
         try {
-            List<Street> streetList = new DictionaryDaoImpl().findStreets("se");
-            streetList.forEach(street -> System.out.println(street.getStreetCode() + " " + street.getStreetName()));
+            List<Street> streetList = new DictionaryDaoImpl().findStreets("t");
+            streetList.forEach(street -> System.out.println(street.getStreetName()));
         } catch (DaoException e) {
             e.printStackTrace();
         }
