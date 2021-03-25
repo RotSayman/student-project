@@ -12,6 +12,13 @@ CREATE TABLE jc_street
     PRIMARY KEY (street_code)
 );
 
+CREATE TABLE jc_university
+(
+    university_id integer not null,
+    university_name varchar(300),
+    PRIMARY KEY (university_id)
+);
+
 CREATE TABLE jc_country_struct
 (
     area_id char(12) not null,
