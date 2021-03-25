@@ -3,6 +3,7 @@ DROP TABLE IF EXISTS jc_student_order;
 DROP TABLE IF EXISTS jc_passport_office;
 DROP TABLE IF EXISTS jc_register_office;
 DROP TABLE IF EXISTS jc_country_struct;
+DROP TABLE IF EXISTS jc_university;
 DROP TABLE IF EXISTS jc_street;
 
 CREATE TABLE jc_street
@@ -48,6 +49,8 @@ CREATE TABLE jc_register_office
 CREATE TABLE jc_student_order
 (
     student_order_id SERIAL,
+    student_order_status int not null,
+    student_order_date timestamp not null,
     h_sur_name varchar(100) not null,
     h_given_name varchar(100) not null,
     h_patronymic varchar(100) not null,
