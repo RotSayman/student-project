@@ -1,16 +1,16 @@
 package edu.javacourse.studentorder;
 
-import edu.javacourse.studentorder.dao.DictionaryDaoImpl;
+import edu.javacourse.studentorder.dao.StudentOrderDao;
+import edu.javacourse.studentorder.dao.StudentOrderDaoImpl;
 import edu.javacourse.studentorder.domain.*;
 import edu.javacourse.studentorder.exception.DaoException;
 
 import java.time.LocalDate;
-import java.util.List;
 
 public class SaveStudentOrder
 {
-    public static void main(String[] args){
-        try {
+    public static void main(String[] args) throws DaoException{
+//        try {
 //            List<Street> streetList = new DictionaryDaoImpl().findStreets("про");
 //            streetList.forEach(street -> {
 //                System.out.print(street.getStreetCode() + " | ");
@@ -33,33 +33,40 @@ public class SaveStudentOrder
 //                System.out.println(registerOffice.getOfficeName() + " | ");
 //            });
 //            System.out.println();
-            List<CountryArea> countryAreas = new DictionaryDaoImpl().findArea("");
-            countryAreas.forEach(countryArea -> {
-                System.out.print(countryArea.getAreaId() + " | ");
-                System.out.println(countryArea.getAreaName() + " | ");
-            });
-            System.out.println();
-            List<CountryArea> countryAreas2 = new DictionaryDaoImpl().findArea("020000000000");
-            countryAreas2.forEach(countryArea2 -> {
-                System.out.print(countryArea2.getAreaId() + " | ");
-                System.out.println(countryArea2.getAreaName() + " | ");
-            });
-            System.out.println();
-            List<CountryArea> countryAreas3 = new DictionaryDaoImpl().findArea("020010000000");
-            countryAreas3.forEach(countryArea3 -> {
-                System.out.print(countryArea3.getAreaId() + " | ");
-                System.out.println(countryArea3.getAreaName() + " | ");
-            });
-            System.out.println();
-            List<CountryArea> countryAreas4 = new DictionaryDaoImpl().findArea("020010010000");
-            countryAreas4.forEach(countryArea4 -> {
-                System.out.print(countryArea4.getAreaId() + " | ");
-                System.out.println(countryArea4.getAreaName() + " | ");
-            });
+//            List<CountryArea> countryAreas = new DictionaryDaoImpl().findArea("");
+//            countryAreas.forEach(countryArea -> {
+//                System.out.print(countryArea.getAreaId() + " | ");
+//                System.out.println(countryArea.getAreaName() + " | ");
+//            });
+//            System.out.println();
+//            List<CountryArea> countryAreas2 = new DictionaryDaoImpl().findArea("020000000000");
+//            countryAreas2.forEach(countryArea2 -> {
+//                System.out.print(countryArea2.getAreaId() + " | ");
+//                System.out.println(countryArea2.getAreaName() + " | ");
+//            });
+//            System.out.println();
+//            List<CountryArea> countryAreas3 = new DictionaryDaoImpl().findArea("020010000000");
+//            countryAreas3.forEach(countryArea3 -> {
+//                System.out.print(countryArea3.getAreaId() + " | ");
+//                System.out.println(countryArea3.getAreaName() + " | ");
+//            });
+//            System.out.println();
+//            List<CountryArea> countryAreas4 = new DictionaryDaoImpl().findArea("020010010000");
+//            countryAreas4.forEach(countryArea4 -> {
+//                System.out.print(countryArea4.getAreaId() + " | ");
+//                System.out.println(countryArea4.getAreaName() + " | ");
+//            });
+//
+//        } catch (DaoException e) {
+//            e.printStackTrace();
+//        }
 
-        } catch (DaoException e) {
-            e.printStackTrace();
-        }
+
+        StudentOrder s = buildStudentOrder(10);
+        StudentOrderDao dao = new StudentOrderDaoImpl();
+        Long id = dao.saveStudentOrder(s);
+        System.out.println(id);
+
 //        StudentOrder so = new StudentOrder();
 //        long ans = saveStudentOrder(so);
 //        System.out.println(ans);
@@ -77,9 +84,12 @@ public class SaveStudentOrder
         so.setStudentOrderId(id);
         so.setMarriageCertificateId("" + (123456000 + id));
         so.setMarriageDate(LocalDate.of(2016, 7, 4));
+
         RegisterOffice ro = new RegisterOffice(1L, "", "");
         so.setMarriageOffice(ro);
-        Street street = new Street();
+
+        Street street = new Street(1L, "First street");
+
         Address address = new Address("195000", street, "12", "", "142");
 
         // Муж
@@ -91,6 +101,7 @@ public class SaveStudentOrder
         husband.setIssueDepartment(po1);
         husband.setStudentId("" + (100000 + id));
         husband.setAddress(address);
+
         // Жена
         Adult wife = new Adult("Петрова", "Вероника", "Алекссевна", LocalDate.of(1998, 3, 12));
         wife.setPassportSeria("" + (2000 + id));
@@ -100,18 +111,20 @@ public class SaveStudentOrder
         wife.setIssueDepartment(po2);
         wife.setStudentId("" + (200000 + id));
         wife.setAddress(address);
+
         // Ребенок
         Child child1 = new Child("Петрова", "Ирина", "Викторовна", LocalDate.of(2018, 6, 29));
         child1.setCertificateNumber("" + (300000 + id));
-        child1.setIssueDate(LocalDate.of(2018, 7, 19));
+        child1.setIssueDate(LocalDate.of(2018, 6, 11));
         RegisterOffice ro2 = new RegisterOffice(2L, "", "");
         child1.setIssueDepartment(ro2);
         child1.setAddress(address);
         // Ребенок
         Child child2 = new Child("Петров", "Евгений", "Викторович", LocalDate.of(2018, 6, 29));
         child2.setCertificateNumber("" + (400000 + id));
+        child2.setIssueDate(LocalDate.of(2018, 7, 19));
         RegisterOffice ro3 = new RegisterOffice(3L, "", "");
-        child1.setIssueDepartment(ro3);
+        child2.setIssueDepartment(ro3);
         child2.setAddress(address);
 
         so.setHusband(husband);

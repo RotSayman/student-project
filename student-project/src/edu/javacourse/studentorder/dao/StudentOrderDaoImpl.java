@@ -1,11 +1,11 @@
 package edu.javacourse.studentorder.dao;
 
 import edu.javacourse.studentorder.config.Config;
-import edu.javacourse.studentorder.domain.StudentOrder;
-import edu.javacourse.studentorder.domain.StudentOrderStatus;
+import edu.javacourse.studentorder.domain.*;
 import edu.javacourse.studentorder.exception.DaoException;
 
 import java.sql.*;
+import java.time.LocalDateTime;
 
 public class StudentOrderDaoImpl implements StudentOrderDao {
 
@@ -22,6 +22,12 @@ public class StudentOrderDaoImpl implements StudentOrderDao {
                     " register_office_id, marriage_date) " +
                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, " +
                     "?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    private static final String INSERT_CHILD = "INSERT INTO jc_student_child(" +
+            "student_order_id, c_sur_name, " +
+            "c_given_name, c_patronymic, c_date_of_birth, c_certificate_number, " +
+            "c_certificate_date, c_register_office_id, c_post_index, " +
+            "c_street_code, c_building, c_extension, c_apartment) " +
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     // TODO refactoring make one method
     private static Connection getConnection() throws SQLException {
@@ -33,22 +39,92 @@ public class StudentOrderDaoImpl implements StudentOrderDao {
         return conn;
     }
 
+
+
     @Override
     public Long saveStudentOrder(StudentOrder so) throws DaoException {
+        long result = -1L;
         try(Connection connection = getConnection();
-            PreparedStatement preStat = connection.prepareStatement(INSERT_ORDER)){
-            preStat.setInt(1, StudentOrderStatus.START.ordinal());
-            preStat.setTimestamp(2, Timestamp.valueOf(so.getStudentOrderDate()));
-            preStat.setString(3, so.getHusband().getSurName());
-            preStat.setString(4, so.getHusband().getGivenName());
-            preStat.setString(5, so.getHusband().getPatronymic());
-            preStat.setDate(6, Date.valueOf(so.getHusband().getIssueDate()));
+            PreparedStatement stmt = connection.prepareStatement(INSERT_ORDER, new String[]{"student_order_id"})){
+                connection.setAutoCommit(false);
+                try {
+                    // Header
+                    stmt.setInt(1, StudentOrderStatus.START.ordinal());
+                    stmt.setTimestamp(2, java.sql.Timestamp.valueOf(LocalDateTime.now()));
+                    //Husband and Wife
+                    setParamsForAdult(stmt, 3, so.getHusband());
+                    setParamsForAdult(stmt, 16, so.getWife());
+
+                    //Marriage
+                    stmt.setString(29, so.getMarriageCertificateId());
+                    stmt.setLong(30, so.getMarriageOffice().getOfficeId());
+                    stmt.setDate(31, java.sql.Date.valueOf(so.getMarriageDate()));
+
+                    stmt.executeUpdate();
+
+                    ResultSet gkRs = stmt.getGeneratedKeys();
+                    if (gkRs.next())
+                        result = gkRs.getLong(1);
+                    gkRs.close();
+
+                    saveChildren(connection, so, result);
+
+                    connection.commit();
+                }catch (SQLException ex){
+                    connection.rollback();
+                    throw ex;
+                }
 
 
 
         }catch (SQLException ex){
             throw new DaoException(ex);
+
         }
-        return 0L;
+        return result;
     }
+
+    private void saveChildren(Connection con, StudentOrder so, Long spId) throws SQLException {
+        try (PreparedStatement stmt = con.prepareStatement(INSERT_CHILD)){
+            for(Child child : so.getChildren()){
+                stmt.setLong(1, spId);
+                setParamsForChild(stmt, child);
+                stmt.executeUpdate();
+            }
+        }
+    }
+
+    private void setParamsForChild(PreparedStatement stmt, Child child) throws SQLException{
+        setParamsForPerson(stmt, 2, child);
+        stmt.setString(6, child.getCertificateNumber());
+        stmt.setDate(7, java.sql.Date.valueOf(child.getIssueDate()));
+        stmt.setLong(8, child.getIssueDepartment().getOfficeId());
+        setParamsForAddress(stmt, 9, child);
+    }
+
+    private void setParamsForAdult(PreparedStatement stmt, int start, Adult adult) throws SQLException {
+        setParamsForPerson(stmt, start, adult);
+        stmt.setString(start + 4, adult.getPassportSeria());
+        stmt.setString(start + 5, adult.getPassportNumber());
+        stmt.setDate(start + 6, Date.valueOf(adult.getIssueDate()));
+        stmt.setLong(start + 7, adult.getIssueDepartment().getOfficeId());
+        setParamsForAddress(stmt, start + 8, adult);
+    }
+
+    private void setParamsForPerson(PreparedStatement stmt, int start, Person adult) throws SQLException {
+        stmt.setString(start, adult.getSurName());
+        stmt.setString(start + 1, adult.getGivenName());
+        stmt.setString(start + 2, adult.getPatronymic());
+        stmt.setDate(start + 3, Date.valueOf(adult.getDateOfBirth()));
+    }
+
+    private void setParamsForAddress(PreparedStatement stmt, int start, Person person) throws SQLException {
+        Address address = person.getAddress();
+        stmt.setString(start, address.getPostCode());
+        stmt.setLong(start + 1, address.getStreet().getStreetCode());
+        stmt.setString(start + 2, address.getBuilding());
+        stmt.setString(start + 3, address.getExtension());
+        stmt.setString(start + 4, address.getApartment());
+    }
+
 }
