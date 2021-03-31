@@ -31,12 +31,11 @@ public class StudentOrderDaoImpl implements StudentOrderDao {
 
     // TODO refactoring make one method
     private static Connection getConnection() throws SQLException {
-        Connection conn = DriverManager.getConnection(
+        return DriverManager.getConnection(
                 Config.getProperty(Config.DB_URL),
                 Config.getProperty(Config.DB_LOGIN),
                 Config.getProperty(Config.DB_PASSWORD)
         );
-        return conn;
     }
 
 
@@ -89,8 +88,9 @@ public class StudentOrderDaoImpl implements StudentOrderDao {
             for(Child child : so.getChildren()){
                 stmt.setLong(1, spId);
                 setParamsForChild(stmt, child);
-                stmt.executeUpdate();
+                stmt.addBatch();
             }
+            stmt.executeBatch();
         }
     }
 
